@@ -16,6 +16,14 @@ spring:
     gateway:
       # Rotas explícitas para serviços descobertos no Eureka
       routes:
+        # Rota para Auth Service
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=0
+        
         # Rota para Product Service
         - id: product-service
           # lb:// = Load Balancer (necessário para Eureka Discovery)

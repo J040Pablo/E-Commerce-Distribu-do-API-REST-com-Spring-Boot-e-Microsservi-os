@@ -1,0 +1,10 @@
+#!/bin/sh
+# Maven Wrapper script
+
+if [ -z "$MAVEN_HOME" ]; then
+  MAVEN_HOME="$(dirname "$0")/../..";
+fi
+
+exec java -classpath "$MAVEN_HOME/.mvn/wrapper/maven-wrapper.jar:$MAVEN_HOME/.mvn/wrapper/MavenWrapperDownloader.class" \
+  "-Dmaven.multiModuleProjectDirectory=$MAVEN_HOME" \
+  org.apache.maven.wrapper.MavenWrapperMain "$@"

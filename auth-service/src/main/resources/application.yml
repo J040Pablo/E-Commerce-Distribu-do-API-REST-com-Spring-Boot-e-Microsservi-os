@@ -1,15 +1,15 @@
 server:
-  port: 8081
+  port: 8082
   servlet:
     context-path: /
 
 spring:
   application:
-    name: product-service
+    name: auth-service
   
   # Configuração de Datasource MySQL
   datasource:
-    url: jdbc:mysql://127.0.0.1:3307/product_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3307/ecommerce_auth_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
     username: root
     password: ecommerce
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -44,12 +44,18 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
+# Configuração JWT
+jwt:
+  secret: ecommerce_secret_key_very_long_for_hs512_algorithm_please_change_in_production
+  expiration: 86400000  # 24 horas em milisegundos
+  refresh:
+    expiration: 604800000  # 7 dias em milisegundos
+
 # Configuração de Logging
 logging:
   level:
     root: INFO
     com.ecommerce: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
