@@ -1,0 +1,72 @@
+# ========================================
+# Spring Boot Server Configuration
+# ========================================
+server:
+  port: 8080
+
+# ========================================
+# Spring Cloud Gateway Configuration
+# ========================================
+spring:
+  application:
+    # Nome do serviço registrado no Eureka
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Discovery Locator: permite que o Gateway descubra e rotear automaticamente
+      # para serviços registrados no Eureka usando o padrão /{service-name}/**
+      discovery:
+        locator:
+          # Ativa o roteamento automático baseado em serviços Eureka
+          enabled: true
+          
+          # Converte o ID do serviço para minúsculas
+          # Exemplo: "PRODUCT-SERVICE" vira "product-service"
+          lower-case-service-id: true
+      
+      # Definir rotas explícitas quando usando Discovery Locator
+      routes:
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/product-service/**
+          filters:
+            - StripPrefix=1
+
+# ========================================
+# Eureka Client Configuration
+# ========================================
+eureka:
+  client:
+    # Configuração do Eureka Server
+    service-url:
+      # URL do Eureka Server para registrar o API Gateway
+      defaultZone: http://localhost:8761/eureka
+    
+    # Registra o API Gateway no Eureka como cliente
+    register-with-eureka: true
+    
+    # Busca a lista de serviços no Eureka
+    fetch-registry: true
+
+  instance:
+    # ID da instância registrada no Eureka
+    instance-id: api-gateway-${spring.application.instance-id:${random.value}}
+    
+    # Define a preferência para usar o hostname ao invés do IP
+    prefer-ip-address: false
+    
+    # Intervalo de heartbeat (em segundos)
+    lease-renewal-interval-in-seconds: 10
+    
+    # Timeout antes de remover o serviço (em segundos)
+    lease-expiration-duration-in-seconds: 30
+
+# ========================================
+# Logging Configuration (OPCIONAL)
+# ========================================
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE

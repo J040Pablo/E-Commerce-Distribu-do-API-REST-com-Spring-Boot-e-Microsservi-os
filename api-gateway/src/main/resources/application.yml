@@ -1,0 +1,82 @@
+# ========================================
+# Spring Boot Server Configuration
+# ========================================
+server:
+  port: 8080
+
+# ========================================
+# Spring Cloud Gateway Configuration
+# ========================================
+spring:
+  application:
+    # Nome do serviço registrado no Eureka
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Rotas explícitas para serviços descobertos no Eureka
+      routes:
+        # Rota para Product Service
+        - id: product-service
+          # lb:// = Load Balancer (necessário para Eureka Discovery)
+          # O nome deve corresponder ao spring.application.name do serviço
+          uri: lb://product-service
+          predicates:
+            # Intercepta requisições que começam com /product-service
+            - Path=/product-service/**
+          filters:
+            # Remove o primeiro segmento do caminho antes de encaminhar
+            # /product-service/products -> /products
+            - StripPrefix=1
+    
+    loadbalancer:
+      # Ribbon LoadBalancer (usado com Eureka)
+      ribbon:
+        enabled: true
+      # Configuração de cache e descoberta
+      cache:
+        ttl: 5m
+      # Usar Eureka como service provider
+      eureka:
+        enabled: true
+      # Health check
+      health-check:
+        initial-delay: 0
+        interval: 25s
+
+# ========================================
+# Eureka Client Configuration
+# ========================================
+eureka:
+  client:
+    # Configuração do Eureka Server
+    service-url:
+      # URL do Eureka Server para registrar o API Gateway
+      defaultZone: http://localhost:8761/eureka
+    
+    # Registra o API Gateway no Eureka como cliente
+    register-with-eureka: true
+    
+    # Busca a lista de serviços no Eureka
+    fetch-registry: true
+
+  instance:
+    # Define a preferência para usar o hostname ao invés do IP
+    # IMPORTANTE: Deve ser true para que o LoadBalancer encontre o serviço
+    prefer-ip-address: true
+    
+    # Intervalo de heartbeat (em segundos)
+    lease-renewal-interval-in-seconds: 10
+    
+    # Timeout antes de remover o serviço (em segundos)
+    lease-expiration-duration-in-seconds: 30
+
+# ========================================
+# Logging Configuration
+# ========================================
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    com.netflix.discovery: INFO
+    org.springframework.web: DEBUG

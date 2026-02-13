@@ -1,0 +1,185 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.ecommerce:api-gateway >----------------------
+[INFO] Building api-gateway 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ api-gateway ---
+[INFO] Deleting /home/pablo/Documentos/ecommerce-microservices/api-gateway/target
+[INFO] 
+[INFO] >>> spring-boot:3.1.6:run (default-cli) > test-compile @ api-gateway >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ api-gateway ---
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ api-gateway ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 1 source file with javac [debug release 17] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ api-gateway ---
+[INFO] skip non existing resourceDirectory /home/pablo/Documentos/ecommerce-microservices/api-gateway/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ api-gateway ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 1 source file with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] <<< spring-boot:3.1.6:run (default-cli) < test-compile @ api-gateway <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.1.6:run (default-cli) @ api-gateway ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.1.6)
+
+2026-02-13T14:19:21.636-03:00  INFO 3914482 --- [           main] c.e.api_gateway.ApiGatewayApplication    : Starting ApiGatewayApplication using Java 17.0.18 with PID 3914482 (/home/pablo/Documentos/ecommerce-microservices/api-gateway/target/classes started by pablo in /home/pablo/Documentos/ecommerce-microservices/api-gateway)
+2026-02-13T14:19:21.639-03:00  INFO 3914482 --- [           main] c.e.api_gateway.ApiGatewayApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-02-13T14:19:23.355-03:00  INFO 3914482 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=9773b440-2e8c-3318-ad4a-8de2d77f11f4
+2026-02-13T14:19:23.440-03:00  INFO 3914482 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2026-02-13T14:19:23.442-03:00  INFO 3914482 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2026-02-13T14:19:23.443-03:00  INFO 3914482 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2026-02-13T14:19:24.153-03:00 DEBUG 3914482 --- [           main] o.s.c.gateway.config.GatewayProperties   : Routes supplied from Gateway Properties: [RouteDefinition{id='product-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/product-service/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://product-service, order=0, metadata={}}]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2026-02-13T14:19:24.361-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2026-02-13T14:19:24.362-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2026-02-13T14:19:24.362-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2026-02-13T14:19:24.362-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2026-02-13T14:19:24.362-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2026-02-13T14:19:24.362-03:00  INFO 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2026-02-13T14:19:24.523-03:00 DEBUG 3914482 --- [           main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2026-02-13T14:19:24.683-03:00  INFO 3914482 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-02-13T14:19:24.749-03:00 DEBUG 3914482 --- [           main] o.s.w.r.r.m.a.ControllerMethodResolver   : ControllerAdvice beans: none
+2026-02-13T14:19:24.797-03:00 DEBUG 3914482 --- [           main] o.s.w.s.adapter.HttpWebHandlerAdapter    : enableLoggingRequestDetails='false': form data and headers will be masked to prevent unsafe logging of potentially sensitive data
+2026-02-13T14:19:24.932-03:00  INFO 3914482 --- [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-02-13T14:19:24.976-03:00  WARN 3914482 --- [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-02-13T14:19:25.028-03:00  INFO 3914482 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2026-02-13T14:19:25.132-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2026-02-13T14:19:25.138-03:00  INFO 3914482 --- [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2026-02-13T14:19:25.174-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2026-02-13T14:19:25.387-03:00 DEBUG 3914482 --- [           main] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/
+2026-02-13T14:19:25.518-03:00 DEBUG 3914482 --- [           main] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:25.570-03:00 DEBUG 3914482 --- [           main] o.s.web.client.RestTemplate              : Response 200 OK
+2026-02-13T14:19:25.571-03:00 DEBUG 3914482 --- [           main] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2026-02-13T14:19:25.600-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2026-02-13T14:19:25.603-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 10
+2026-02-13T14:19:25.607-03:00  INFO 3914482 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2026-02-13T14:19:25.615-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1771003165614 with initial instances count: 2
+2026-02-13T14:19:25.617-03:00  INFO 3914482 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application API-GATEWAY with eureka with status UP
+2026-02-13T14:19:25.617-03:00  INFO 3914482 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1771003165617, current=UP, previous=STARTING]
+2026-02-13T14:19:25.619-03:00  INFO 3914482 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_API-GATEWAY/archlinux:api-gateway:8080: registering service...
+2026-02-13T14:19:25.624-03:00 DEBUG 3914482 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : HTTP POST http://localhost:8761/eureka/apps/API-GATEWAY
+2026-02-13T14:19:25.626-03:00 DEBUG 3914482 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:25.646-03:00 DEBUG 3914482 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Writing [InstanceInfo [instanceId = archlinux:api-gateway:8080, appName = API-GATEWAY, hostName = archlinux, status = UP, ipAddr = 192.168.1.66, port = 8080, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@36e8eae3] as "application/json"
+2026-02-13T14:19:25.658-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying {_genkey_0=/product-service/**} to Path
+2026-02-13T14:19:25.689-03:00 DEBUG 3914482 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Response 204 NO_CONTENT
+2026-02-13T14:19:25.689-03:00  INFO 3914482 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_API-GATEWAY/archlinux:api-gateway:8080 - registration status: 204
+2026-02-13T14:19:25.695-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {_genkey_0=1} to StripPrefix
+2026-02-13T14:19:25.705-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: product-service
+2026-02-13T14:19:25.714-03:00 DEBUG 3914482 --- [           main] o.s.c.g.filter.GatewayMetricsFilter      : New routes count: 1
+2026-02-13T14:19:25.813-03:00  INFO 3914482 --- [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080
+2026-02-13T14:19:25.814-03:00  INFO 3914482 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8080
+2026-02-13T14:19:25.841-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying {_genkey_0=/product-service/**} to Path
+2026-02-13T14:19:25.842-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {_genkey_0=1} to StripPrefix
+2026-02-13T14:19:25.844-03:00 DEBUG 3914482 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: product-service
+2026-02-13T14:19:25.845-03:00 DEBUG 3914482 --- [           main] o.s.c.g.filter.GatewayMetricsFilter      : New routes count: 1
+2026-02-13T14:19:25.849-03:00  INFO 3914482 --- [           main] c.e.api_gateway.ApiGatewayApplication    : Started ApiGatewayApplication in 4.923 seconds (process running for 5.548)
+2026-02-13T14:19:35.611-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/API-GATEWAY/archlinux:api-gateway:8080?status=UP&lastDirtyTimestamp=1771003165617
+2026-02-13T14:19:35.643-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:35.649-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2026-02-13T14:19:36.033-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [205cf576-1] HTTP GET "/product-service/products"
+2026-02-13T14:19:36.063-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.h.RoutePredicateHandlerMapping   : Route matched: product-service
+2026-02-13T14:19:36.066-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.h.RoutePredicateHandlerMapping   : Mapping [Exchange: GET http://localhost:8080/product-service/products] to Route{id='product-service', uri=lb://product-service, order=0, predicate=Paths: [/product-service/**], match trailing slash: true, gatewayFilters=[[[StripPrefix parts = 1], order = 1]], metadata={}}
+2026-02-13T14:19:36.067-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.h.RoutePredicateHandlerMapping   : [205cf576-1] Mapped to org.springframework.cloud.gateway.handler.FilteringWebHandler@2cb5613
+2026-02-13T14:19:36.068-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.handler.FilteringWebHandler      : Sorted gatewayFilterFactories: [[GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RemoveCachedBodyFilter@4a6c0f38}, order = -2147483648], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.AdaptCachedBodyGlobalFilter@6a3fbcb1}, order = -2147482648], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyWriteResponseFilter@3dbd7107}, order = -1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardPathFilter@70b6db83}, order = 0], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.GatewayMetricsFilter@559af296}, order = 0], [[StripPrefix parts = 1], order = 1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter@5f8a02cf}, order = 10000], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ReactiveLoadBalancerClientFilter@101cf747}, order = 10150], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.LoadBalancerServiceInstanceCookieFilter@790d8fdd}, order = 10151], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.WebsocketRoutingFilter@5a090f62}, order = 2147483646], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyRoutingFilter@6403a4a5}, order = 2147483647], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardRoutingFilter@26d5a317}, order = 2147483647]]
+2026-02-13T14:19:36.131-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying {_genkey_0=/product-service/**} to Path
+2026-02-13T14:19:36.133-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {_genkey_0=1} to StripPrefix
+2026-02-13T14:19:36.134-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: product-service
+2026-02-13T14:19:36.135-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.c.g.filter.GatewayMetricsFilter      : New routes count: 1
+2026-02-13T14:19:36.161-03:00 DEBUG 3914482 --- [or-http-epoll-2] g.f.h.o.ObservedRequestHttpHeadersFilter : Will instrument the HTTP request headers [Host:"localhost:8080", User-Agent:"curl/8.18.0", Accept:"*/*", Forwarded:"proto=http;host="localhost:8080";for="[0:0:0:0:0:0:0:1%0]:38272"", X-Forwarded-For:"0:0:0:0:0:0:0:1%0", X-Forwarded-Proto:"http", X-Forwarded-Prefix:"/product-service", X-Forwarded-Port:"8080", X-Forwarded-Host:"localhost:8080"]
+2026-02-13T14:19:36.166-03:00 DEBUG 3914482 --- [or-http-epoll-2] g.f.h.o.ObservedRequestHttpHeadersFilter : Client observation  {name=http.client.requests(null), error=null, context=name='http.client.requests', contextualName='null', error='null', lowCardinalityKeyValues=[http.method='GET', http.status_code='UNKNOWN', spring.cloud.gateway.route.id='product-service', spring.cloud.gateway.route.uri='lb://product-service'], highCardinalityKeyValues=[http.uri='http://localhost:8080/products'], map=[class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@23666892', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.001284993, duration(nanos)=1284993.0, startTimeNanos=7676118662845}'], parentObservation={name=http.server.requests(null), error=null, context=name='http.server.requests', contextualName='null', error='null', lowCardinalityKeyValues=[exception='none', method='GET', outcome='SUCCESS', status='200', uri='UNKNOWN'], highCardinalityKeyValues=[http.url='/product-service/products'], map=[class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@291dd070', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.115734728, duration(nanos)=1.15734728E8, startTimeNanos=7676004519092}'], parentObservation=null}} created for the request. New headers are [Host:"localhost:8080", User-Agent:"curl/8.18.0", Accept:"*/*", Forwarded:"proto=http;host="localhost:8080";for="[0:0:0:0:0:0:0:1%0]:38272"", X-Forwarded-For:"0:0:0:0:0:0:0:1%0", X-Forwarded-Proto:"http", X-Forwarded-Prefix:"/product-service", X-Forwarded-Port:"8080", X-Forwarded-Host:"localhost:8080"]
+2026-02-13T14:19:36.282-03:00 DEBUG 3914482 --- [or-http-epoll-2] .o.ObservationClosingWebExceptionHandler : An exception occurred and observation was not previously stopped, will stop it. The exception was [java.net.UnknownHostException: Failed to resolve 'archlinux' [A(1)] after 2 queries ]
+2026-02-13T14:19:36.297-03:00 DEBUG 3914482 --- [or-http-epoll-2] org.springframework.web.HttpLogging      : [205cf576-1] Resolved [UnknownHostException: Failed to resolve 'archlinux' [A(1)] after 2 queries ] for HTTP GET /product-service/products
+2026-02-13T14:19:36.298-03:00 ERROR 3914482 --- [or-http-epoll-2] a.w.r.e.AbstractErrorWebExceptionHandler : [205cf576-1]  500 Server Error for HTTP GET "/product-service/products"
+
+java.net.UnknownHostException: Failed to resolve 'archlinux' [A(1)] after 2 queries 
+	at io.netty.resolver.dns.DnsResolveContext.finishResolve(DnsResolveContext.java:1097) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+	Suppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException: 
+Error has been observed at the following site(s):
+	*__checkpoint ⇢ org.springframework.cloud.gateway.filter.WeightCalculatorWebFilter [DefaultWebFilterChain]
+	*__checkpoint ⇢ org.springframework.web.filter.reactive.ServerHttpObservationFilter [DefaultWebFilterChain]
+	*__checkpoint ⇢ HTTP GET "/product-service/products" [ExceptionHandlingWebHandler]
+Original Stack Trace:
+		at io.netty.resolver.dns.DnsResolveContext.finishResolve(DnsResolveContext.java:1097) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsResolveContext.tryToFinishResolve(DnsResolveContext.java:1044) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsResolveContext.query(DnsResolveContext.java:432) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsResolveContext.onResponse(DnsResolveContext.java:662) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsResolveContext.access$500(DnsResolveContext.java:66) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsResolveContext$2.operationComplete(DnsResolveContext.java:489) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.notifyListener0(DefaultPromise.java:590) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.notifyListeners0(DefaultPromise.java:583) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.notifyListenersNow(DefaultPromise.java:559) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:492) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.setValue0(DefaultPromise.java:636) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.setSuccess0(DefaultPromise.java:625) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.DefaultPromise.trySuccess(DefaultPromise.java:105) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsQueryContext.trySuccess(DnsQueryContext.java:317) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsQueryContext.finishSuccess(DnsQueryContext.java:309) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.resolver.dns.DnsNameResolver$DnsResponseHandler.channelRead(DnsNameResolver.java:1400) ~[netty-resolver-dns-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:103) ~[netty-codec-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1410) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:919) ~[netty-transport-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollDatagramChannel.processPacket(EpollDatagramChannel.java:662) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollDatagramChannel.recvmsg(EpollDatagramChannel.java:697) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollDatagramChannel.access$300(EpollDatagramChannel.java:56) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollDatagramChannel$EpollDatagramChannelUnsafe.epollInReady(EpollDatagramChannel.java:536) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:509) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:407) ~[netty-transport-classes-epoll-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.101.Final.jar:4.1.101.Final]
+		at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-02-13T14:19:36.324-03:00 DEBUG 3914482 --- [or-http-epoll-2] org.springframework.web.HttpLogging      : [205cf576-1] Encoding [{timestamp=Fri Feb 13 14:19:36 BRT 2026, path=/product-service/products, status=500, error=Internal  (truncated)...]
+2026-02-13T14:19:36.339-03:00 DEBUG 3914482 --- [or-http-epoll-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [205cf576-1] Completed 500 INTERNAL_SERVER_ERROR
+2026-02-13T14:19:45.650-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/API-GATEWAY/archlinux:api-gateway:8080?status=UP&lastDirtyTimestamp=1771003165617
+2026-02-13T14:19:45.650-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:45.654-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2026-02-13T14:19:55.604-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://localhost:8761/eureka/apps/delta
+2026-02-13T14:19:55.605-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:55.609-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2026-02-13T14:19:55.609-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2026-02-13T14:19:55.615-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying {_genkey_0=/product-service/**} to Path
+2026-02-13T14:19:55.616-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {_genkey_0=1} to StripPrefix
+2026-02-13T14:19:55.618-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: product-service
+2026-02-13T14:19:55.618-03:00 DEBUG 3914482 --- [freshExecutor-0] o.s.c.g.filter.GatewayMetricsFilter      : New routes count: 1
+2026-02-13T14:19:55.656-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://localhost:8761/eureka/apps/API-GATEWAY/archlinux:api-gateway:8080?status=UP&lastDirtyTimestamp=1771003165617
+2026-02-13T14:19:55.656-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2026-02-13T14:19:55.661-03:00 DEBUG 3914482 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
