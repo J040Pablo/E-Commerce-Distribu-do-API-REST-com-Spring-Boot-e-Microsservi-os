@@ -13,6 +13,11 @@ spring:
     username: root
     password: ecommerce
     driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   
   # Configuração JPA/Hibernate
   jpa:

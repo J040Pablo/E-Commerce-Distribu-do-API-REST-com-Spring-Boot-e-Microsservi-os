@@ -1,0 +1,62 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3307/order_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: root
+    password: ecommerce
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: America/Sao_Paulo
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    root: INFO
+    com.ecommerce.order_service: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      customerService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+      productService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always

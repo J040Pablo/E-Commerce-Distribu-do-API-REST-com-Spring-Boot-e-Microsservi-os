@@ -11,11 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-
-/**
- * Controller REST para gerenciamento de produtos
- * Expõe endpoints para operações CRUD
- */
 @RestController
 @RequestMapping("/products")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -28,10 +23,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    /**
-     * GET /products - Retorna todos os produtos
-     * @return Lista de todos os produtos
-     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllProducts() {
         logger.info("GET /products - Buscando todos os produtos");
@@ -51,11 +42,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * GET /products/{id} - Retorna um produto por ID
-     * @param id ID do produto
-     * @return Dados do produto
-     */
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
         logger.info("GET /products/{} - Buscando produto", id);
@@ -74,11 +60,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * GET /products/category/{category} - Retorna produtos por categoria
-     * @param category Categoria dos produtos
-     * @return Lista de produtos da categoria
-     */
     @GetMapping("/category/{category}")
     public ResponseEntity<Map<String, Object>> getProductsByCategory(@PathVariable String category) {
         logger.info("GET /products/category/{} - Buscando produtos por categoria", category);
@@ -99,10 +80,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * GET /products/available - Retorna apenas produtos disponíveis (quantidade > 0)
-     * @return Lista de produtos disponíveis
-     */
     @GetMapping("/available")
     public ResponseEntity<Map<String, Object>> getAvailableProducts() {
         logger.info("GET /products/available - Buscando produtos disponíveis");
@@ -122,17 +99,11 @@ public class ProductController {
         }
     }
 
-    /**
-     * POST /products - Cria um novo produto
-     * @param productDTO Dados do produto a ser criado
-     * @return Produto criado
-     */
     @PostMapping
     public ResponseEntity<Map<String, Object>> createProduct(@RequestBody ProductDTO productDTO) {
         logger.info("POST /products - Criando novo produto: {}", productDTO.getName());
         
         try {
-            // Validações básicas
             if (productDTO.getName() == null || productDTO.getName().isBlank()) {
                 return buildErrorResponse("Nome do produto é obrigatório", HttpStatus.BAD_REQUEST);
             }
@@ -163,12 +134,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * PUT /products/{id} - Atualiza um produto existente
-     * @param id ID do produto a atualizar
-     * @param productDTO Dados atualizados do produto
-     * @return Produto atualizado
-     */
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable Long id,
@@ -190,11 +155,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * DELETE /products/{id} - Deleta um produto
-     * @param id ID do produto a deletar
-     * @return Confirmação da exclusão
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
         logger.info("DELETE /products/{} - Deletando produto", id);
@@ -213,9 +173,6 @@ public class ProductController {
         }
     }
 
-    /**
-     * Health check endpoint
-     */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Product Service funcionando!");

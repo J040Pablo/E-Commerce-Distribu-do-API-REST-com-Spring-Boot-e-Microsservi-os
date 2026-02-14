@@ -13,10 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
-/**
- * Controller REST para autenticação e autorização
- */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -27,17 +23,11 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    /**
-     * POST /auth/register - Registra um novo usuário
-     * @param request Dados do registro
-     * @return Token de autenticação
-     */
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
         logger.info("Requisição de registro: {}", request.getUsername());
 
         try {
-            // Validações básicas
             if (request.getUsername() == null || request.getUsername().isBlank()) {
                 return buildErrorResponse("Username é obrigatório", HttpStatus.BAD_REQUEST);
             }
@@ -67,17 +57,11 @@ public class AuthController {
         }
     }
 
-    /**
-     * POST /auth/login - Realiza login do usuário
-     * @param request Credenciais do usuário
-     * @return Token de autenticação
-     */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
         logger.info("Requisição de login: {}", request.getUsername());
 
         try {
-            // Validações básicas
             if (request.getUsername() == null || request.getUsername().isBlank()) {
                 return buildErrorResponse("Username é obrigatório", HttpStatus.BAD_REQUEST);
             }
@@ -101,11 +85,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * POST /auth/refresh - Renova o token de acesso
-     * @param request Contém o refresh token
-     * @return Novo token de acesso
-     */
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refreshToken(@RequestBody Map<String, String> request) {
         logger.info("Requisição de refresh token");
@@ -133,11 +112,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * GET /auth/validate - Valida um token JWT
-     * @param token Token no header Authorization
-     * @return Informações do usuário
-     */
     @GetMapping("/validate")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestHeader("Authorization") String token) {
         logger.info("Validando token");
@@ -165,17 +139,11 @@ public class AuthController {
         }
     }
 
-    /**
-     * GET /auth/health - Health check endpoint
-     */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Auth Service funcionando!");
     }
 
-    /**
-     * Constrói resposta de erro padrão
-     */
     private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);

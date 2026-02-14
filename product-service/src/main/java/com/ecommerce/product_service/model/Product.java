@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Entidade Product - Representa um produto no catálogo de e-commerce
- */
 @Entity
 @Table(name = "products")
 public class Product {
@@ -39,7 +36,6 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Constructors
     public Product() {
     }
 
@@ -52,7 +48,6 @@ public class Product {
         this.category = category;
     }
 
-    // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -64,7 +59,6 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

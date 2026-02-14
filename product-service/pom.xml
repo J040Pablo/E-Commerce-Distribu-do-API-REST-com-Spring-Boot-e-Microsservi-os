@@ -48,10 +48,10 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- NECESSÁRIO NO BOOT 3 -->
+        <!-- RABBITMQ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
         <!-- TEST -->

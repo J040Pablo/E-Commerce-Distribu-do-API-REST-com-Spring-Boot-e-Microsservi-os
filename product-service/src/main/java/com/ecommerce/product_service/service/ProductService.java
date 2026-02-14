@@ -11,10 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-/**
- * Serviço para lógica de negócio relacionada a Products
- */
 @Service
 @Transactional
 public class ProductService {
@@ -26,9 +22,6 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    /**
-     * Retorna todos os produtos
-     */
     @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
         logger.info("Buscando todos os produtos");
@@ -38,9 +31,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Busca produto por ID
-     */
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Long id) {
         logger.info("Buscando produto com ID: {}", id);
@@ -49,9 +39,6 @@ public class ProductService {
         return convertToDTO(product);
     }
 
-    /**
-     * Busca produtos por categoria
-     */
     @Transactional(readOnly = true)
     public List<ProductDTO> getProductsByCategory(String category) {
         logger.info("Buscando produtos da categoria: {}", category);
@@ -61,9 +48,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Busca produtos disponíveis (quantidade > 0)
-     */
     @Transactional(readOnly = true)
     public List<ProductDTO> getAvailableProducts() {
         logger.info("Buscando produtos disponíveis");
@@ -73,13 +57,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Cria um novo produto
-     */
     public ProductDTO createProduct(ProductDTO productDTO) {
         logger.info("Criando novo produto com SKU: {}", productDTO.getSku());
 
-        // Verifica se já existe produto com o mesmo SKU
         if (productRepository.findBySku(productDTO.getSku()).isPresent()) {
             throw new IllegalArgumentException("Já existe um produto com o SKU: " + productDTO.getSku());
         }
@@ -99,16 +79,12 @@ public class ProductService {
         return convertToDTO(savedProduct);
     }
 
-    /**
-     * Atualiza um produto existente
-     */
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         logger.info("Atualizando produto com ID: {}", id);
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
 
-        // Atualiza apenas os campos fornecidos
         if (productDTO.getName() != null) {
             product.setName(productDTO.getName());
         }
@@ -131,9 +107,6 @@ public class ProductService {
         return convertToDTO(updatedProduct);
     }
 
-    /**
-     * Deleta um produto
-     */
     public void deleteProduct(Long id) {
         logger.info("Deletando produto com ID: {}", id);
 
@@ -145,9 +118,6 @@ public class ProductService {
         logger.info("Produto deletado com sucesso. ID: {}", id);
     }
 
-    /**
-     * Converte entidade Product para DTO
-     */
     private ProductDTO convertToDTO(Product product) {
         return new ProductDTO(
                 product.getId(),
@@ -162,9 +132,6 @@ public class ProductService {
         );
     }
 
-    /**
-     * Converte DTO para entidade Product
-     */
     private Product convertToEntity(ProductDTO productDTO) {
         return new Product(
                 productDTO.getName(),

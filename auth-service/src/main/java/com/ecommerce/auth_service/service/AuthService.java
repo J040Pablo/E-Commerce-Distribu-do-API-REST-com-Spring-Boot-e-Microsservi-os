@@ -21,10 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-
-/**
- * Serviço para lógica de autenticação
- */
 @Service
 @Transactional
 public class AuthService {
@@ -43,13 +39,9 @@ public class AuthService {
     @Autowired
     private JwtProvider jwtProvider;
 
-    /**
-     * Registra um novo usuário
-     */
     public AuthResponse register(RegisterRequest request) {
         logger.info("Registrando novo usuário: {}", request.getUsername());
 
-        // Validações
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new AuthenticationException("As senhas não coincidem");
         }
@@ -62,7 +54,6 @@ public class AuthService {
             throw new UserAlreadyExistsException("Email já existe: " + request.getEmail());
         }
 
-        // Cria novo usuário
         User user = new User(
                 request.getUsername(),
                 request.getEmail(),
@@ -73,7 +64,6 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         logger.info("Usuário registrado com sucesso. ID: {}", savedUser.getId());
 
-        // Gera tokens
         String accessToken = jwtProvider.generateAccessToken(
                 savedUser.getId(),
                 savedUser.getUsername(),
@@ -85,7 +75,6 @@ public class AuthService {
                 savedUser.getUsername()
         );
 
-        // Retorna resposta
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
                 savedUser.getUsername(),
@@ -101,14 +90,10 @@ public class AuthService {
         );
     }
 
-    /**
-     * Realiza login do usuário
-     */
     public AuthResponse login(LoginRequest request) {
         logger.info("Login do usuário: {}", request.getUsername());
 
         try {
-            // Autentica o usuário
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getUsername(),
@@ -116,13 +101,11 @@ public class AuthService {
                     )
             );
 
-            // Busca o usuário
             User user = userRepository.findByUsername(request.getUsername())
                     .orElseThrow(() -> new UserNotFoundException(
                             "Usuário não encontrado: " + request.getUsername()
                     ));
 
-            // Gera tokens
             String accessToken = jwtProvider.generateAccessToken(
                     user.getId(),
                     user.getUsername(),
@@ -136,7 +119,6 @@ public class AuthService {
 
             logger.info("Login bem-sucedido para usuário: {}", request.getUsername());
 
-            // Retorna resposta
             AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                     user.getId(),
                     user.getUsername(),
@@ -157,9 +139,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Renova o access token usando o refresh token
-     */
     public AuthResponse refreshToken(String refreshToken) {
         logger.info("Renovando access token");
 
@@ -175,14 +154,12 @@ public class AuthService {
                         "Usuário não encontrado: " + username
                 ));
 
-        // Gera novo access token
         String accessToken = jwtProvider.generateAccessToken(
                 user.getId(),
                 user.getUsername(),
                 user.getRole().toString()
         );
 
-        // Gera novo refresh token
         String newRefreshToken = jwtProvider.generateRefreshToken(
                 user.getId(),
                 user.getUsername()
@@ -205,17 +182,11 @@ public class AuthService {
         );
     }
 
-    /**
-     * Valida um token
-     */
     @Transactional(readOnly = true)
     public boolean validateToken(String token) {
         return jwtProvider.validateToken(token);
     }
 
-    /**
-     * Extrai informações do token
-     */
     @Transactional(readOnly = true)
     public AuthResponse.UserInfo getTokenInfo(String token) {
         if (!jwtProvider.validateToken(token)) {
