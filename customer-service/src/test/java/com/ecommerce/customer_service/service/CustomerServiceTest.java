@@ -151,18 +151,21 @@ class CustomerServiceTest {
     void updateCustomer_Success() {
         // Arrange
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(customerRepository.existsByEmail(anyString())).thenReturn(false);
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         customerRequest.setName("João Silva Updated");
+        customerRequest.setEmail("joao@example.com");
 
         // Act
         CustomerResponse response = customerService.updateCustomer(1L, customerRequest);
 
         // Assert
         assertNotNull(response);
+        assertEquals("João Silva Updated", response.getName());
+        assertEquals("joao@example.com", response.getEmail());
         verify(customerRepository).findById(1L);
         verify(customerRepository).save(any(Customer.class));
+        verify(customerRepository, never()).existsByEmail(anyString());
     }
 
     @Test
