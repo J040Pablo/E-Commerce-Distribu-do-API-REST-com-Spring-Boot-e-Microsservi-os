@@ -1,4 +1,5 @@
 # E-Commerce Distributed System
+[![CI - Spring Boot Microservices](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
 **Microservices architecture with Spring Boot**
 
 ## Overview

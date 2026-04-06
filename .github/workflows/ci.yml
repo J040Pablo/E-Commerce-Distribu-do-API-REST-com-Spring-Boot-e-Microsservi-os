@@ -1,0 +1,71 @@
+name: CI - Spring Boot Microservices
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build/Test (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - product-service
+          - customer-service
+          - order-service
+          - payment-service
+          - discovery-service
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 and Maven cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build, run unit tests, and generate JaCoCo coverage
+        run: |
+          mvn -B -ntp clean \
+            org.jacoco:jacoco-maven-plugin:prepare-agent \
+            test \
+            org.jacoco:jacoco-maven-plugin:report
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-${{ matrix.service }}
+          path: ${{ matrix.service }}/target/surefire-reports
+          if-no-files-found: ignore
+
+      - name: Upload JaCoCo reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report-${{ matrix.service }}
+          path: |
+            ${{ matrix.service }}/target/site/jacoco
+            ${{ matrix.service }}/target/site/jacoco/jacoco.xml
+          if-no-files-found: ignore

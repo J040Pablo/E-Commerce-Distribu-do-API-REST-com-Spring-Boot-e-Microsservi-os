@@ -10,41 +10,38 @@ import com.ecommerce.auth_service.model.User;
 import com.ecommerce.auth_service.model.User.UserRole;
 import com.ecommerce.auth_service.repository.UserRepository;
 import com.ecommerce.auth_service.security.JwtProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
 @Service
 @Transactional
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    @Autowired
-    private UserRepository userRepository;
+        private final UserRepository userRepository;
+        private final AuthenticationManager authenticationManager;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtProvider jwtProvider;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtProvider jwtProvider;
+        public AuthService(
+                        UserRepository userRepository,
+                        AuthenticationManager authenticationManager,
+                        PasswordEncoder passwordEncoder,
+                        JwtProvider jwtProvider) {
+                this.userRepository = userRepository;
+                this.authenticationManager = authenticationManager;
+                this.passwordEncoder = passwordEncoder;
+                this.jwtProvider = jwtProvider;
+        }
 
     public AuthResponse register(RegisterRequest request) {
         logger.info("Registrando novo usuário: {}", request.getUsername());
-
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new AuthenticationException("As senhas não coincidem");
-        }
 
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new UserAlreadyExistsException("Username já existe: " + request.getUsername());
@@ -94,7 +91,7 @@ public class AuthService {
         logger.info("Login do usuário: {}", request.getUsername());
 
         try {
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getUsername(),
                             request.getPassword()
@@ -133,8 +130,8 @@ public class AuthService {
                     userInfo
             );
 
-        } catch (Exception e) {
-            logger.error("Falha na autenticação: {}", e.getMessage());
+                } catch (org.springframework.security.core.AuthenticationException e) {
+                        logger.warn("Falha na autenticação para username={}", request.getUsername());
             throw new AuthenticationException("Username ou senha inválidos");
         }
     }
@@ -147,7 +144,6 @@ public class AuthService {
         }
 
         String username = jwtProvider.getUsernameFromToken(refreshToken);
-        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -194,7 +190,6 @@ public class AuthService {
         }
 
         String username = jwtProvider.getUsernameFromToken(token);
-        Long userId = jwtProvider.getUserIdFromToken(token);
         String role = jwtProvider.getRoleFromToken(token);
 
         User user = userRepository.findByUsername(username)

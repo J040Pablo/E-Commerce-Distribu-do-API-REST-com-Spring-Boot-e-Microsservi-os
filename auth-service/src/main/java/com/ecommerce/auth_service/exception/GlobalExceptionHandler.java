@@ -1,15 +1,17 @@
 package com.ecommerce.auth_service.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Handler global para tratamento de exceções
@@ -17,99 +19,102 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     /**
      * Trata exceção de autenticação falha
      */
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthenticationException(
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex,
-            WebRequest request) {
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.UNAUTHORIZED.value());
-        body.put("error", "Authentication Failed");
-        body.put("message", ex.getMessage());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+            HttpServletRequest request) {
+        logger.warn("Authentication error at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication Failed", ex.getMessage(), request.getRequestURI());
     }
 
     /**
      * Trata exceção de usuário não encontrado
      */
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFound(
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
             UserNotFoundException ex,
-            WebRequest request) {
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "User Not Found");
-        body.put("message", ex.getMessage());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+            HttpServletRequest request) {
+        logger.warn("User not found at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "User Not Found", ex.getMessage(), request.getRequestURI());
     }
 
     /**
      * Trata exceção de usuário já existente
      */
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(
             UserAlreadyExistsException ex,
-            WebRequest request) {
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("error", "Conflict");
-        body.put("message", ex.getMessage());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+            HttpServletRequest request) {
+        logger.warn("Conflict at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request.getRequestURI());
     }
 
     /**
      * Trata exceção de validação de argumentos
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
+        public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
-            WebRequest request) {
+            HttpServletRequest request) {
+        String validationMessage = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(Collectors.joining("; "));
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Validation Error");
-        body.put("message", "Erro na validação dos dados");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
+        logger.warn("Validation error at path={}: {}", request.getRequestURI(), validationMessage);
+        return buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
+            "Validation Error",
+            validationMessage,
+            request.getRequestURI()
         );
-        body.put("errors", errors);
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     /**
-     * Trata exceção genérica
+         * Trata exceções de argumentos inválidos.
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGlobalException(
+        @ExceptionHandler({IllegalArgumentException.class, MethodArgumentTypeMismatchException.class})
+        public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             Exception ex,
-            WebRequest request) {
+            HttpServletRequest request) {
+        logger.warn("Bad request at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request.getRequestURI());
+        }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal Server Error");
-        body.put("message", "Erro interno do servidor");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
+        /**
+         * Trata exceção genérica
+         */
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGlobalException(
+            Exception ex,
+            HttpServletRequest request) {
+        logger.error("Unexpected error at path={}", request.getRequestURI(), ex);
+        return buildErrorResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "Internal Server Error",
+            "Erro interno do servidor",
+            request.getRequestURI()
+        );
+        }
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        private ResponseEntity<ErrorResponse> buildErrorResponse(
+            HttpStatus status,
+            String error,
+            String message,
+            String path) {
+        ErrorResponse response = new ErrorResponse(
+            LocalDateTime.now(),
+            status.value(),
+            error,
+            message,
+            path
+        );
+        return ResponseEntity.status(status).body(response);
     }
 }
