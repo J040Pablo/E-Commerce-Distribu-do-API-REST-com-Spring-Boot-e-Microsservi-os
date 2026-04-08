@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -68,12 +68,21 @@ class CustomerServiceTest {
         CustomerResponse response = customerService.createCustomer(customerRequest);
 
         // Assert
-        assertNotNull(response);
-        assertEquals(customer.getId(), response.getId());
-        assertEquals(customer.getName(), response.getName());
-        assertEquals(customer.getEmail(), response.getEmail());
-        verify(customerRepository).existsByEmail(customerRequest.getEmail());
-        verify(customerRepository).save(any(Customer.class));
+        assertThat(response)
+                .as("Customer response should not be null")
+                .isNotNull();
+        assertThat(response.getId())
+                .as("Response ID should match saved customer")
+                .isEqualTo(customer.getId());
+        assertThat(response.getName())
+                .as("Response name should match request")
+                .isEqualTo(customer.getName());
+        assertThat(response.getEmail())
+                .as("Response email should match request")
+                .isEqualTo(customer.getEmail());
+        
+        verify(customerRepository, times(1)).existsByEmail(customerRequest.getEmail());
+        verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
     @Test
@@ -82,8 +91,9 @@ class CustomerServiceTest {
         when(customerRepository.existsByEmail(anyString())).thenReturn(true);
 
         // Act & Assert
-        assertThrows(CustomerAlreadyExistsException.class, () -> 
-            customerService.createCustomer(customerRequest));
+        assertThatThrownBy(() -> customerService.createCustomer(customerRequest))
+            .as("Should throw CustomerAlreadyExistsException when email exists")
+            .isInstanceOf(CustomerAlreadyExistsException.class);
         verify(customerRepository).existsByEmail(customerRequest.getEmail());
         verify(customerRepository, never()).save(any(Customer.class));
     }
@@ -97,9 +107,15 @@ class CustomerServiceTest {
         CustomerResponse response = customerService.getCustomerById(1L);
 
         // Assert
-        assertNotNull(response);
-        assertEquals(customer.getId(), response.getId());
-        assertEquals(customer.getEmail(), response.getEmail());
+        assertThat(response)
+                .as("Customer response should not be null")
+                .isNotNull();
+        assertThat(response.getId())
+            .as("Response ID should match saved customer")
+            .isEqualTo(customer.getId());
+        assertThat(response.getEmail())
+            .as("Response email should match request")
+            .isEqualTo(customer.getEmail());
         verify(customerRepository).findById(1L);
     }
 
@@ -109,8 +125,9 @@ class CustomerServiceTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(CustomerNotFoundException.class, () -> 
-            customerService.getCustomerById(1L));
+        assertThatThrownBy(() -> customerService.getCustomerById(1L))
+            .as("Should throw CustomerNotFoundException when customer not found")
+            .isInstanceOf(CustomerNotFoundException.class);
         verify(customerRepository).findById(1L);
     }
 
@@ -123,8 +140,12 @@ class CustomerServiceTest {
         CustomerResponse response = customerService.getCustomerByEmail("joao@example.com");
 
         // Assert
-        assertNotNull(response);
-        assertEquals(customer.getEmail(), response.getEmail());
+        assertThat(response)
+            .as("Customer response should not be null")
+            .isNotNull();
+        assertThat(response.getEmail())
+            .as("Response email should match saved customer")
+            .isEqualTo(customer.getEmail());
         verify(customerRepository).findByEmail("joao@example.com");
     }
 
@@ -142,8 +163,10 @@ class CustomerServiceTest {
         List<CustomerResponse> responses = customerService.getAllCustomers();
 
         // Assert
-        assertNotNull(responses);
-        assertEquals(2, responses.size());
+        assertThat(responses)
+            .as("Customers list should not be null")
+            .isNotNull()
+            .hasSize(2);
         verify(customerRepository).findAll();
     }
 
@@ -160,9 +183,15 @@ class CustomerServiceTest {
         CustomerResponse response = customerService.updateCustomer(1L, customerRequest);
 
         // Assert
-        assertNotNull(response);
-        assertEquals("João Silva Updated", response.getName());
-        assertEquals("joao@example.com", response.getEmail());
+        assertThat(response)
+            .as("Customer response should not be null")
+            .isNotNull();
+        assertThat(response.getName())
+            .as("Response name should be updated")
+            .isEqualTo("João Silva Updated");
+        assertThat(response.getEmail())
+            .as("Response email should remain the same")
+            .isEqualTo("joao@example.com");
         verify(customerRepository).findById(1L);
         verify(customerRepository).save(any(Customer.class));
         verify(customerRepository, never()).existsByEmail(anyString());
@@ -176,8 +205,9 @@ class CustomerServiceTest {
         when(customerRepository.existsByEmail("outro@example.com")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(CustomerAlreadyExistsException.class, () -> 
-            customerService.updateCustomer(1L, customerRequest));
+        assertThatThrownBy(() -> customerService.updateCustomer(1L, customerRequest))
+            .as("Should throw CustomerAlreadyExistsException when email already in use")
+            .isInstanceOf(CustomerAlreadyExistsException.class);
         verify(customerRepository).findById(1L);
         verify(customerRepository, never()).save(any(Customer.class));
     }
@@ -201,8 +231,9 @@ class CustomerServiceTest {
         when(customerRepository.existsById(1L)).thenReturn(false);
 
         // Act & Assert
-        assertThrows(CustomerNotFoundException.class, () -> 
-            customerService.deleteCustomer(1L));
+        assertThatThrownBy(() -> customerService.deleteCustomer(1L))
+            .as("Should throw CustomerNotFoundException when customer not found")
+            .isInstanceOf(CustomerNotFoundException.class);
         verify(customerRepository).existsById(1L);
         verify(customerRepository, never()).deleteById(any());
     }

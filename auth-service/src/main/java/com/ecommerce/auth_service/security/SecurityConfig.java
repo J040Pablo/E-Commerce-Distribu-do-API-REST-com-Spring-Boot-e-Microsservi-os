@@ -67,19 +67,16 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((authz) -> authz
-                        // Endpoints públicos
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/health").permitAll()
+            .authorizeHttpRequests((authz) -> authz
+                // Preflight CORS
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Endpoints protegidos
-                        .requestMatchers(HttpMethod.GET, "/auth/validate").authenticated()
+                // Endpoints públicos de autenticação
+                .requestMatchers("/auth/**", "/api/auth/**").permitAll()
 
-                        // Todas as outras requisições requerem autenticação
-                        .anyRequest().authenticated()
-                );
+                // Todas as demais rotas exigem autenticação
+                .anyRequest().authenticated()
+            );
 
         // Adiciona o filtro JWT
         http.authenticationProvider(authenticationProvider())

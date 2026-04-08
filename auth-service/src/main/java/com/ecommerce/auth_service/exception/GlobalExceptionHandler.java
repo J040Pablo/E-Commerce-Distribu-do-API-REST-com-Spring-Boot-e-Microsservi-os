@@ -1,22 +1,25 @@
 package com.ecommerce.auth_service.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  * Handler global para tratamento de exceções
  */
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -35,9 +38,9 @@ public class GlobalExceptionHandler {
     /**
      * Trata exceção de usuário não encontrado
      */
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler({UserNotFoundException.class, EntityNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleUserNotFound(
-            UserNotFoundException ex,
+            RuntimeException ex,
             HttpServletRequest request) {
         logger.warn("User not found at path={}: {}", request.getRequestURI(), ex.getMessage());
         return buildErrorResponse(HttpStatus.NOT_FOUND, "User Not Found", ex.getMessage(), request.getRequestURI());
@@ -113,8 +116,17 @@ public class GlobalExceptionHandler {
             status.value(),
             error,
             message,
-            path
+                path,
+                resolveTraceId()
         );
         return ResponseEntity.status(status).body(response);
+    }
+
+    private String resolveTraceId() {
+        String traceId = MDC.get("traceId");
+        if (traceId == null || traceId.isBlank()) {
+            traceId = MDC.get("trace_id");
+        }
+        return (traceId == null || traceId.isBlank()) ? UUID.randomUUID().toString() : traceId;
     }
 }

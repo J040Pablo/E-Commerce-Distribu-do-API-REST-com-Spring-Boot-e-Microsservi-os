@@ -20,22 +20,41 @@ spring:
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Path=/api/auth/**
           filters:
             - StripPrefix=0
         
         # Rota para Product Service
         - id: product-service
-          # lb:// = Load Balancer (necessário para Eureka Discovery)
-          # O nome deve corresponder ao spring.application.name do serviço
           uri: lb://product-service
           predicates:
-            # Intercepta requisições que começam com /product-service
-            - Path=/product-service/**
+            - Path=/api/products/**
           filters:
-            # Remove o primeiro segmento do caminho antes de encaminhar
-            # /product-service/products -> /products
-            - StripPrefix=1
+            - StripPrefix=0
+
+        # Rota para Customer Service
+        - id: customer-service
+          uri: lb://customer-service
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - StripPrefix=0
+
+        # Rota para Order Service
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=0
+
+        # Rota para Payment Service
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - StripPrefix=0
     
     loadbalancer:
       # Ribbon LoadBalancer (usado com Eureka)

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @FeignClient(name = "product-service")
 public interface ProductClient {
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/api/products/{id}")
     @CircuitBreaker(name = "productService", fallbackMethod = "getProductFallback")
     @Retry(name = "productService")
     ProductResponse getProductById(@PathVariable("id") Long id);

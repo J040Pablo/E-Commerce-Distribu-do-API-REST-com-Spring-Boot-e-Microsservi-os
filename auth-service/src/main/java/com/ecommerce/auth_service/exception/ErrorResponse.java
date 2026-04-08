@@ -12,16 +12,18 @@ public class ErrorResponse {
     private String error;
     private String message;
     private String path;
+    private String traceId;
 
     public ErrorResponse() {
     }
 
-    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path) {
+    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path, String traceId) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
         this.message = message;
         this.path = path;
+        this.traceId = traceId;
     }
 
     public LocalDateTime getTimestamp() {
@@ -62,5 +64,13 @@ public class ErrorResponse {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
     }
 }

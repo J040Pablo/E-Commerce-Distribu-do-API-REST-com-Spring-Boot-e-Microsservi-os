@@ -5,31 +5,38 @@ spring:
   application:
     name: order-service
   datasource:
-    url: jdbc:mysql://127.0.0.1:3307/order_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-    username: root
-    password: ecommerce
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/order_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-    show-sql: true
+        dialect: ${DB_DIALECT}
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    fail-on-missing-locations: true
+
   jackson:
     serialization:
       write-dates-as-timestamps: false
     time-zone: America/Sao_Paulo
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_DEFAULT_ZONE}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -37,8 +44,8 @@ eureka:
 
 logging:
   level:
-    root: INFO
-    com.ecommerce.order_service: DEBUG
+    root: ${LOG_LEVEL_ROOT}
+    "[com.ecommerce.order_service]": ${LOG_LEVEL_APP}
 
 resilience4j:
   circuitbreaker:

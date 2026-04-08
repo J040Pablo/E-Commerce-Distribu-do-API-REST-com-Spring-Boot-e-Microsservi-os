@@ -1,3 +1,11 @@
+# CRITICAL SECURITY - NEVER COMMIT
+.env
+.env.local
+.env.*.local
+
+# AUDITORIA_SENIOR_ENGINEER.md
+AUDITORIA_SENIOR_ENGINEER.md
+
 # Build artifacts
 **/target/
 **/bin/
@@ -38,8 +46,7 @@ logs/
 # Spring Boot
 spring-boot-*.log
 
-# Environment
-.env# Maven
+# Maven
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -86,9 +93,6 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-# Environment
-.env
 
 # Docker volumes
 data/

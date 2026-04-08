@@ -15,7 +15,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import java.io.IOException;
+
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
@@ -27,9 +29,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        if (HttpMethod.OPTIONS.matches(method)) {
+            return true;
+        }
+
+        return (HttpMethod.POST.matches(method)
+                && ("/auth/register".equals(path)
+                || "/api/auth/register".equals(path)
+                || "/auth/login".equals(path)
+                || "/api/auth/login".equals(path)
+                || "/auth/refresh".equals(path)
+                || "/api/auth/refresh".equals(path)))
+                || (HttpMethod.GET.matches(method)
+                && ("/auth/health".equals(path)
+                || "/api/auth/health".equals(path)));
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
                                    FilterChain filterChain) throws ServletException, IOException {
         try {
+            String authorizationHeader = request.getHeader("Authorization");
+
+            // Sem token: segue a cadeia normalmente. Endpoints protegidos serão bloqueados pelo Security.
+            if (!StringUtils.hasText(authorizationHeader)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            // Header inválido/malformado: não autentica, apenas segue a cadeia.
+            if (!authorizationHeader.startsWith("Bearer ")) {
+                logger.debug("Authorization header sem prefixo Bearer em path={}", request.getServletPath());
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
@@ -46,9 +84,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 logger.debug("JWT validado para usuário: {}", username);
+            } else {
+                logger.debug("JWT ausente/inválido para path={}", request.getServletPath());
             }
         } catch (Exception ex) {
-            logger.error("Erro ao processar JWT: {}", ex.getMessage());
+            logger.warn("Falha ao processar JWT em path={}: {}", request.getServletPath(), ex.getMessage());
         }
 
         filterChain.doFilter(request, response);

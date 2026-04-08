@@ -1,6 +1,9 @@
 package com.ecommerce.product_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -11,11 +14,25 @@ import java.time.LocalDateTime;
 public class ProductDTO {
 
     private Long id;
+
+    @NotBlank(message = "Nome do produto é obrigatório")
     private String name;
+
+    @NotBlank(message = "Descrição do produto é obrigatória")
     private String description;
+
+    @NotNull(message = "Preço do produto é obrigatório")
+    @Positive(message = "Preço do produto deve ser maior que zero")
     private BigDecimal price;
+
+    @NotNull(message = "Quantidade é obrigatória")
+    @Positive(message = "Quantidade deve ser maior que zero")
     private Integer quantity;
+
+    @NotBlank(message = "SKU do produto é obrigatório")
     private String sku;
+
+    @NotBlank(message = "Categoria do produto é obrigatória")
     private String category;
 
     @JsonProperty("created_at")

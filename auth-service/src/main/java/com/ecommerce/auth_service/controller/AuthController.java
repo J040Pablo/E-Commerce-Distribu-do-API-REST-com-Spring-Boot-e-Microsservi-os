@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @Validated
-@RequestMapping("/auth")
+@RequestMapping({"/auth", "/api/auth"})
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);

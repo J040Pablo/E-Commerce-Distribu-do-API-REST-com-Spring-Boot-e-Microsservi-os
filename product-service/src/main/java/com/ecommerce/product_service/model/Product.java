@@ -15,7 +15,7 @@ public class Product {
     @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @Column(nullable = false, precision = 10, scale = 2)

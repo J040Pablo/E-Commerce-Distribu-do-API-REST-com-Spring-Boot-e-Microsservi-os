@@ -1,79 +1,94 @@
 package com.ecommerce.product_service.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Handler global para tratamento de exceções
  */
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * Trata exceção quando recurso não é encontrado
      */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(
-            ResourceNotFoundException ex,
-            WebRequest request) {
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Not Found");
-        body.put("message", ex.getMessage());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    @ExceptionHandler({ResourceNotFoundException.class, EntityNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(
+            RuntimeException ex,
+            HttpServletRequest request) {
+        logger.warn("Resource not found at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request.getRequestURI());
     }
 
     /**
      * Trata exceção de validação de argumentos
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
+    public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
-            WebRequest request) {
+            HttpServletRequest request) {
+        String validationMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Validation Error");
-        body.put("message", "Erro na validação dos dados");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
+        logger.warn("Validation error at path={}: {}", request.getRequestURI(), validationMessage);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation Error", validationMessage, request.getRequestURI());
+    }
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-        body.put("errors", errors);
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException ex,
+            HttpServletRequest request) {
+        logger.warn("Business error at path={}: {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Business Rule Violation", ex.getMessage(), request.getRequestURI());
+    }
 
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request) {
+        logger.warn("Constraint violation at path={}: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Data Integrity Violation",
+                "Dados inválidos ou violação de restrição de banco de dados", request.getRequestURI());
     }
 
     /**
      * Trata exceção genérica
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGlobalException(
+    public ResponseEntity<ErrorResponse> handleGlobalException(
             Exception ex,
-            WebRequest request) {
+            HttpServletRequest request) {
+        logger.error("Unexpected error at path={}", request.getRequestURI(), ex);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Erro interno do servidor", request.getRequestURI());
+    }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal Server Error");
-        body.put("message", "Erro interno do servidor");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String error, String message, String path) {
+        String traceId = resolveTraceId();
+        ErrorResponse response = new ErrorResponse(LocalDateTime.now(), status.value(), error, message, path, traceId);
+        return ResponseEntity.status(status).body(response);
+    }
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    private String resolveTraceId() {
+        String traceId = MDC.get("traceId");
+        if (traceId == null || traceId.isBlank()) {
+            traceId = MDC.get("trace_id");
+        }
+        return (traceId == null || traceId.isBlank()) ? UUID.randomUUID().toString() : traceId;
     }
 }

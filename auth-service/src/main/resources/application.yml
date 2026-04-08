@@ -7,36 +7,40 @@ spring:
   application:
     name: auth-service
   
-  # Configuração de Datasource MySQL
   datasource:
-    url: jdbc:mysql://127.0.0.1:3307/ecommerce_auth_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-    username: root
-    password: ecommerce
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/ecommerce_auth_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   
-  # Configuração JPA/Hibernate
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: ${DB_DIALECT}
         format_sql: true
         use_sql_comments: true
     show-sql: false
     open-in-view: false
   
-  # Configuração de serialização
   jackson:
     serialization:
       write-dates-as-timestamps: false
     time-zone: America/Sao_Paulo
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    fail-on-missing-locations: true
+    baseline-on-migrate: true
+    baseline-version: 0
 
-# Configuração Eureka
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_DEFAULT_ZONE}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -44,18 +48,28 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# Configuração JWT
 jwt:
-  secret: ecommerce_secret_key_very_long_for_hs512_algorithm_please_change_in_production
-  expiration: 86400000  # 24 horas em milisegundos
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
   refresh:
-    expiration: 604800000  # 7 dias em milisegundos
+    expiration: ${JWT_REFRESH_EXPIRATION}
 
-# Configuração de Logging
 logging:
   level:
-    root: INFO
-    com.ecommerce: DEBUG
-    org.springframework.security: DEBUG
+    root: ${LOG_LEVEL_ROOT}
+    com.ecommerce: ${LOG_LEVEL_APP}
+    org.springframework.security: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+
+logging:
+  level:
+    root: WARN
+    com.ecommerce: INFO
+    org.springframework.security: WARN

@@ -1,11 +1,13 @@
 package com.ecommerce.product_service.service;
 
 import com.ecommerce.product_service.dto.ProductDTO;
+import com.ecommerce.product_service.exception.BusinessException;
 import com.ecommerce.product_service.exception.ResourceNotFoundException;
 import com.ecommerce.product_service.model.Product;
 import com.ecommerce.product_service.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,25 +60,28 @@ public class ProductService {
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {
-        logger.info("Criando novo produto com SKU: {}", productDTO.getSku());
+        logger.info("Recebida solicitação de criação de produto. sku={}, name={}, category={}",
+                productDTO.getSku(), productDTO.getName(), productDTO.getCategory());
 
-        if (productRepository.findBySku(productDTO.getSku()).isPresent()) {
-            throw new IllegalArgumentException("Já existe um produto com o SKU: " + productDTO.getSku());
+        if (productRepository.existsBySku(productDTO.getSku())) {
+            logger.warn("Falha ao criar produto: SKU duplicado. sku={}", productDTO.getSku());
+            throw new BusinessException("Já existe um produto com o SKU: " + productDTO.getSku());
         }
 
-        Product product = new Product(
-                productDTO.getName(),
-                productDTO.getDescription(),
-                productDTO.getPrice(),
-                productDTO.getQuantity(),
-                productDTO.getSku(),
-                productDTO.getCategory()
-        );
-
-        Product savedProduct = productRepository.save(product);
-        logger.info("Produto criado com sucesso. ID: {}", savedProduct.getId());
-
-        return convertToDTO(savedProduct);
+        try {
+            Product product = convertToEntity(productDTO);
+            Product savedProduct = productRepository.save(product);
+            logger.info("Produto criado com sucesso. id={}, sku={}", savedProduct.getId(), savedProduct.getSku());
+            return convertToDTO(savedProduct);
+        } catch (DataIntegrityViolationException ex) {
+            logger.warn("Falha de integridade ao criar produto. sku={}, erro={}",
+                    productDTO.getSku(), ex.getMostSpecificCause().getMessage());
+            throw ex;
+        } catch (RuntimeException ex) {
+            logger.error("Falha inesperada ao criar produto. sku={}, motivo={}",
+                    productDTO.getSku(), ex.getMessage(), ex);
+            throw ex;
+        }
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {

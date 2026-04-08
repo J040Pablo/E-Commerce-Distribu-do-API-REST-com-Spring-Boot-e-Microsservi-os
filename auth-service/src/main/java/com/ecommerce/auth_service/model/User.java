@@ -2,6 +2,8 @@ package com.ecommerce.auth_service.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Entidade User - Representa um usuário do sistema
@@ -27,6 +29,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false)
     private UserRole role;
 
