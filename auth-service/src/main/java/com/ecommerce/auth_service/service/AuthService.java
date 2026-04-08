@@ -28,16 +28,19 @@ public class AuthService {
         private final AuthenticationManager authenticationManager;
         private final PasswordEncoder passwordEncoder;
         private final JwtProvider jwtProvider;
+        private final RefreshTokenService refreshTokenService;
 
         public AuthService(
                         UserRepository userRepository,
                         AuthenticationManager authenticationManager,
                         PasswordEncoder passwordEncoder,
-                        JwtProvider jwtProvider) {
+                        JwtProvider jwtProvider,
+                        RefreshTokenService refreshTokenService) {
                 this.userRepository = userRepository;
                 this.authenticationManager = authenticationManager;
                 this.passwordEncoder = passwordEncoder;
                 this.jwtProvider = jwtProvider;
+                this.refreshTokenService = refreshTokenService;
         }
 
     public AuthResponse register(RegisterRequest request) {
@@ -67,10 +70,7 @@ public class AuthService {
                 savedUser.getRole().toString()
         );
 
-        String refreshToken = jwtProvider.generateRefreshToken(
-                savedUser.getId(),
-                savedUser.getUsername()
-        );
+        String refreshToken = refreshTokenService.issueToken(savedUser).rawToken();
 
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
@@ -109,10 +109,7 @@ public class AuthService {
                     user.getRole().toString()
             );
 
-            String refreshToken = jwtProvider.generateRefreshToken(
-                    user.getId(),
-                    user.getUsername()
-            );
+            String refreshToken = refreshTokenService.issueToken(user).rawToken();
 
             logger.info("Login bem-sucedido para usuário: {}", request.getUsername());
 
@@ -139,16 +136,8 @@ public class AuthService {
     public AuthResponse refreshToken(String refreshToken) {
         logger.info("Renovando access token");
 
-        if (!jwtProvider.validateToken(refreshToken)) {
-            throw new AuthenticationException("Refresh token inválido ou expirado");
-        }
-
-        String username = jwtProvider.getUsernameFromToken(refreshToken);
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(
-                        "Usuário não encontrado: " + username
-                ));
+        RefreshTokenService.RotationResult rotationResult = refreshTokenService.rotateToken(refreshToken);
+        User user = rotationResult.user();
 
         String accessToken = jwtProvider.generateAccessToken(
                 user.getId(),
@@ -156,12 +145,7 @@ public class AuthService {
                 user.getRole().toString()
         );
 
-        String newRefreshToken = jwtProvider.generateRefreshToken(
-                user.getId(),
-                user.getUsername()
-        );
-
-        logger.info("Token renovado com sucesso para usuário: {}", username);
+        logger.info("Token renovado com sucesso para usuário: {}", user.getUsername());
 
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId(),
@@ -172,11 +156,15 @@ public class AuthService {
 
         return new AuthResponse(
                 accessToken,
-                newRefreshToken,
+                                rotationResult.newRefreshToken(),
                 jwtProvider.getAccessTokenExpirationMs(),
                 userInfo
         );
     }
+
+        public void revokeRefreshToken(String refreshToken) {
+                refreshTokenService.revokeToken(refreshToken, "LOGOUT");
+        }
 
     @Transactional(readOnly = true)
     public boolean validateToken(String token) {

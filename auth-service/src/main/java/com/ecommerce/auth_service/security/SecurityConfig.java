@@ -74,6 +74,9 @@ public class SecurityConfig {
                 // Endpoints públicos de autenticação
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll()
 
+                // Observabilidade mínima
+                .requestMatchers("/actuator/health", "/actuator/info", "/actuator/metrics", "/actuator/prometheus").permitAll()
+
                 // Todas as demais rotas exigem autenticação
                 .anyRequest().authenticated()
             );

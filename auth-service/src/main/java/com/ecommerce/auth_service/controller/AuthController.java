@@ -60,6 +60,19 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Token renovado com sucesso", authResponse));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        // Comportamento atual:
+        // - token válido e ativo    -> revoga persistindo no banco
+        // - token antigo/revogado   -> rejeita com AuthenticationException
+        // - token inexistente       -> rejeita com AuthenticationException
+        // - token inválido/curto    -> rejeita com AuthenticationException
+        logger.info("Auth logout request received");
+        authService.revokeRefreshToken(request.getRefreshToken());
+        logger.info("Auth logout completed");
+        return ResponseEntity.ok(ApiResponse.success("Sessão encerrada com sucesso", null));
+    }
+
     @GetMapping("/validate")
     public ResponseEntity<ApiResponse<AuthResponse.UserInfo>> validateToken(
             @RequestHeader("Authorization") @NotBlank String authorizationHeader) {

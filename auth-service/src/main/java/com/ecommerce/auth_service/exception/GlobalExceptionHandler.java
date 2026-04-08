@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -89,6 +90,17 @@ public class GlobalExceptionHandler {
         logger.warn("Bad request at path={}: {}", request.getRequestURI(), ex.getMessage());
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request.getRequestURI());
         }
+
+            /**
+             * Trata rota/recurso não encontrado para não mascarar como erro 500.
+             */
+            @ExceptionHandler(NoResourceFoundException.class)
+            public ResponseEntity<ErrorResponse> handleNoResourceFound(
+                NoResourceFoundException ex,
+                HttpServletRequest request) {
+            logger.warn("Resource not found at path={}: {}", request.getRequestURI(), ex.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, "Not Found", "Recurso não encontrado", request.getRequestURI());
+            }
 
         /**
          * Trata exceção genérica

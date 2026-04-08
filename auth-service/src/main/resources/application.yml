@@ -19,8 +19,8 @@ spring:
     properties:
       hibernate:
         dialect: ${DB_DIALECT}
-        format_sql: true
-        use_sql_comments: true
+        "[format_sql]": true
+        "[use_sql_comments]": true
     show-sql: false
     open-in-view: false
   
@@ -49,18 +49,30 @@ eureka:
     lease-expiration-duration-in-seconds: 90
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:local-dev-secret-key-with-at-least-64-characters-for-hs512-signature-1234567890}
+  expiration: ${JWT_EXPIRATION:86400000}
   refresh:
-    expiration: ${JWT_REFRESH_EXPIRATION}
+    expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT}
-    com.ecommerce: ${LOG_LEVEL_APP}
-    org.springframework.security: WARN
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.ecommerce]": ${LOG_LEVEL_APP:DEBUG}
+    "[org.springframework.security]": WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 ---
 spring:
@@ -71,5 +83,5 @@ spring:
 logging:
   level:
     root: WARN
-    com.ecommerce: INFO
-    org.springframework.security: WARN
+    "[com.ecommerce]": INFO
+    "[org.springframework.security]": WARN

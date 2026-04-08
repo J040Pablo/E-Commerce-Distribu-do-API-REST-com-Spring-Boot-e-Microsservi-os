@@ -43,6 +43,9 @@ class AuthServiceTest {
     @Mock
     private JwtProvider jwtProvider;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -68,7 +71,8 @@ class AuthServiceTest {
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         when(jwtProvider.generateAccessToken(1L, "testuser", "USER")).thenReturn("accessToken");
-        when(jwtProvider.generateRefreshToken(1L, "testuser")).thenReturn("refreshToken");
+        when(refreshTokenService.issueToken(testUser))
+            .thenReturn(new RefreshTokenService.RefreshTokenIssueResult("refreshToken", "jti-1"));
         when(jwtProvider.getAccessTokenExpirationMs()).thenReturn(86400000L);
 
         // Act
@@ -86,6 +90,7 @@ class AuthServiceTest {
         verify(passwordEncoder).encode("password123");
         verify(userRepository).save(any(User.class));
         verify(jwtProvider, times(1)).generateAccessToken(1L, "testuser", "USER");
+        verify(refreshTokenService).issueToken(testUser);
     }
 
     @Test
@@ -128,7 +133,8 @@ class AuthServiceTest {
                 .thenReturn(new UsernamePasswordAuthenticationToken("testuser", "password123"));
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(jwtProvider.generateAccessToken(1L, "testuser", "USER")).thenReturn("accessToken");
-        when(jwtProvider.generateRefreshToken(1L, "testuser")).thenReturn("refreshToken");
+        when(refreshTokenService.issueToken(testUser))
+            .thenReturn(new RefreshTokenService.RefreshTokenIssueResult("refreshToken", "jti-2"));
         when(jwtProvider.getAccessTokenExpirationMs()).thenReturn(86400000L);
 
         // Act
@@ -165,25 +171,25 @@ class AuthServiceTest {
     void testRefreshTokenInvalid() {
         // Arrange
         String invalidToken = "invalid_refresh_token";
-        when(jwtProvider.validateToken(invalidToken)).thenReturn(false);
+        when(refreshTokenService.rotateToken(invalidToken))
+                .thenThrow(new AuthenticationException("Refresh token inválido ou expirado"));
 
         // Act & Assert
         assertThatThrownBy(() -> authService.refreshToken(invalidToken))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessageContaining("Refresh token inválido ou expirado");
 
-        verify(jwtProvider).validateToken(invalidToken);
-        verify(jwtProvider, never()).getUsernameFromToken(anyString());
+        verify(refreshTokenService).rotateToken(invalidToken);
+        verify(jwtProvider, never()).generateAccessToken(anyLong(), anyString(), anyString());
     }
 
     @Test
-    @DisplayName("Should generate new access token from valid refresh token")
+        @DisplayName("Should rotate refresh token and generate new access token")
     void testRefreshTokenSuccess() {
         // Arrange
         String refreshToken = "valid_refresh_token";
-        when(jwtProvider.validateToken(refreshToken)).thenReturn(true);
-        when(jwtProvider.getUsernameFromToken(refreshToken)).thenReturn("testuser");
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(refreshTokenService.rotateToken(refreshToken))
+            .thenReturn(new RefreshTokenService.RotationResult(testUser, "rotatedRefreshToken"));
         when(jwtProvider.generateAccessToken(1L, "testuser", "USER")).thenReturn("newAccessToken");
         when(jwtProvider.getAccessTokenExpirationMs()).thenReturn(86400000L);
 
@@ -193,10 +199,38 @@ class AuthServiceTest {
         // Assert
         assertThat(response).isNotNull();
         assertThat(response.getAccessToken()).isEqualTo("newAccessToken");
+        assertThat(response.getRefreshToken()).isEqualTo("rotatedRefreshToken");
         assertThat(response.getUser().getUsername()).isEqualTo("testuser");
 
-        verify(jwtProvider).validateToken(refreshToken);
-        verify(jwtProvider).getUsernameFromToken(refreshToken);
-        verify(userRepository).findByUsername("testuser");
+        verify(refreshTokenService).rotateToken(refreshToken);
+    }
+
+    @Test
+    @DisplayName("Should revoke refresh token on logout")
+    void testRevokeRefreshToken() {
+        // Arrange
+        String refreshToken = "valid_refresh_token";
+
+        // Act
+        authService.revokeRefreshToken(refreshToken);
+
+        // Assert
+        verify(refreshTokenService).revokeToken(refreshToken, "LOGOUT");
+    }
+
+    @Test
+    @DisplayName("Should reject logout when refresh token is invalid")
+    void testRevokeRefreshTokenInvalid() {
+        // Arrange
+        String invalidToken = "x";
+        doThrow(new AuthenticationException("Refresh token inválido ou expirado"))
+                .when(refreshTokenService).revokeToken(invalidToken, "LOGOUT");
+
+        // Act & Assert
+        assertThatThrownBy(() -> authService.revokeRefreshToken(invalidToken))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessageContaining("Refresh token inválido ou expirado");
+
+        verify(refreshTokenService).revokeToken(invalidToken, "LOGOUT");
     }
 }
