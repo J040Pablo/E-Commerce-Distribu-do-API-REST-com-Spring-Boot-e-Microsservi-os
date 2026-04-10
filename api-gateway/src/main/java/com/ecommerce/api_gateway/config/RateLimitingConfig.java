@@ -3,10 +3,13 @@ package com.ecommerce.api_gateway.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -18,12 +21,17 @@ import java.util.Optional;
 @Configuration
 public class RateLimitingConfig {
 
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
+    private static final Logger logger = LoggerFactory.getLogger(RateLimitingConfig.class);
 
+    private static final String BEARER_PREFIX = "Bearer ";
     private final SecretKey jwtSigningKey;
 
-    public RateLimitingConfig(@Value("${JWT_SECRET:local-dev-secret-key-with-at-least-64-characters-for-hs512-signature-1234567890}") String jwtSecret) {
+    @Value("${gateway.rate-limit.log-keys:true}")
+    private boolean logKeys;
+
+    public RateLimitingConfig(
+            @Value("${JWT_SECRET}") String jwtSecret
+    ) {
         this.jwtSigningKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -35,23 +43,28 @@ public class RateLimitingConfig {
     private String resolveRateLimitKey(ServerWebExchange exchange) {
         String path = exchange.getRequest().getURI().getPath();
         if (path.startsWith("/api/auth/")) {
-            return "ip:" + resolveClientIp(exchange);
+            String ipKey = "ip:" + resolveClientIp(exchange);
+            logResolvedKey(path, ipKey);
+            return ipKey;
         }
 
-        return extractBearerToken(exchange)
-                .flatMap(this::extractSubjectSafely)
-                .filter(StringUtils::hasText)
-                .map(subject -> "user:" + subject)
-                .orElseGet(() -> "ip:" + resolveClientIp(exchange));
-    }
-
-    private Optional<String> extractBearerToken(ServerWebExchange exchange) {
-        String authHeader = exchange.getRequest().getHeaders().getFirst(AUTHORIZATION_HEADER);
-        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
-            return Optional.empty();
+        String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith(BEARER_PREFIX)) {
+            String token = authorizationHeader.substring(BEARER_PREFIX.length()).trim();
+            if (StringUtils.hasText(token)) {
+                Optional<String> subject = extractSubjectSafely(token);
+                if (subject.isPresent()) {
+                    String userKey = "user:" + subject.get();
+                    logResolvedKey(path, userKey);
+                    return userKey;
+                }
+                logger.debug("Invalid JWT while resolving rate-limit key on path {}, fallback to IP", path);
+            }
         }
-        String token = authHeader.substring(BEARER_PREFIX.length()).trim();
-        return StringUtils.hasText(token) ? Optional.of(token) : Optional.empty();
+
+        String fallbackKey = "ip:" + resolveClientIp(exchange);
+        logResolvedKey(path, fallbackKey);
+        return fallbackKey;
     }
 
     private Optional<String> extractSubjectSafely(String token) {
@@ -61,8 +74,8 @@ public class RateLimitingConfig {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            return Optional.ofNullable(claims.getSubject());
-        } catch (Exception ignored) {
+            return Optional.ofNullable(claims.getSubject()).filter(StringUtils::hasText);
+        } catch (Exception ex) {
             return Optional.empty();
         }
     }
@@ -84,5 +97,11 @@ public class RateLimitingConfig {
         return Optional.ofNullable(exchange.getRequest().getRemoteAddress())
                 .map(address -> address.getAddress().getHostAddress())
                 .orElse("unknown");
+    }
+
+    private void logResolvedKey(String path, String key) {
+        if (logKeys) {
+            logger.debug("Resolved rate limit key for path {} => {}", path, key);
+        }
     }
 }

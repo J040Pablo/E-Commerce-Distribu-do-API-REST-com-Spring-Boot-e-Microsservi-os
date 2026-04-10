@@ -9,7 +9,7 @@ spring:
   
   datasource:
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/product_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-    username: ${DB_USER}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   rabbitmq:
@@ -23,9 +23,9 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: ${DB_DIALECT}
-        format_sql: true
-        use_sql_comments: true
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MySQLDialect}
+        "[format_sql]": true
+        "[use_sql_comments]": true
     show-sql: false
     open-in-view: false
   
@@ -46,7 +46,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_DEFAULT_ZONE}
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://discovery-service:8761/eureka}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -59,12 +59,27 @@ jwt:
 
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT}
-    com.ecommerce: ${LOG_LEVEL_APP}
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.ecommerce]": ${LOG_LEVEL_APP:INFO}
+    "[org.hibernate.SQL]": INFO
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    "[com.ecommerce]": DEBUG
 
 ---
 spring:
@@ -75,4 +90,4 @@ spring:
 logging:
   level:
     root: WARN
-    com.ecommerce: INFO
+    "[com.ecommerce]": INFO

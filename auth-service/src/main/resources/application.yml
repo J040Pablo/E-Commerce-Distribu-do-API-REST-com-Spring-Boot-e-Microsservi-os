@@ -8,8 +8,8 @@ spring:
     name: auth-service
   
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/ecommerce_auth_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-    username: ${DB_USER}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/auth_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   
@@ -18,7 +18,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: ${DB_DIALECT}
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MySQLDialect}
         "[format_sql]": true
         "[use_sql_comments]": true
     show-sql: false
@@ -40,7 +40,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_DEFAULT_ZONE}
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://discovery-service:8761/eureka}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -49,7 +49,7 @@ eureka:
     lease-expiration-duration-in-seconds: 90
 
 jwt:
-  secret: ${JWT_SECRET:local-dev-secret-key-with-at-least-64-characters-for-hs512-signature-1234567890}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
   refresh:
     expiration: ${JWT_REFRESH_EXPIRATION:604800000}
@@ -57,7 +57,7 @@ jwt:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
-    "[com.ecommerce]": ${LOG_LEVEL_APP:DEBUG}
+    "[com.ecommerce]": ${LOG_LEVEL_APP:INFO}
     "[org.springframework.security]": WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
@@ -73,6 +73,21 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    "[com.ecommerce]": DEBUG
 
 ---
 spring:
