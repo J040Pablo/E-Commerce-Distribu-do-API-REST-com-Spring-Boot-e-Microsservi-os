@@ -1,11 +1,12 @@
 package com.ecommerce.payment_service.service;
 
+import com.ecommerce.payment_service.dto.PaymentApprovedEvent;
 import com.ecommerce.payment_service.dto.PaymentEvent;
 import com.ecommerce.payment_service.entity.Payment;
 import com.ecommerce.payment_service.entity.PaymentStatus;
 import com.ecommerce.payment_service.repository.PaymentRepository;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class PaymentListener {
 
     private static final String ORDER_EXCHANGE = "order.exchange";
     private static final String PAYMENT_APPROVED_ROUTING_KEY = "payment.approved";
+    private static final String PAYMENT_STATUS_ROUTING_KEY = "payment.status";
 
     private final PaymentRepository paymentRepository;
     private final PaymentService paymentService;
@@ -57,11 +59,25 @@ public class PaymentListener {
 
             paymentRepository.save(savedPayment);
 
+                PaymentApprovedEvent paymentStatusEvent = new PaymentApprovedEvent(
+                    savedPayment.getOrderId(),
+                    savedPayment.getStatus().name(),
+                    event.getItems() == null ? List.of() : event.getItems().stream()
+                        .map(i -> new PaymentApprovedEvent.OrderItemPayload(i.getProductId(), i.getQuantity()))
+                        .toList()
+                );
+
+                rabbitTemplate.convertAndSend(
+                    ORDER_EXCHANGE,
+                    PAYMENT_STATUS_ROUTING_KEY,
+                    paymentStatusEvent
+                );
+
             if (savedPayment.getStatus() == PaymentStatus.APPROVED) {
                 rabbitTemplate.convertAndSend(
                         ORDER_EXCHANGE,
                         PAYMENT_APPROVED_ROUTING_KEY,
-                        Map.of("orderId", savedPayment.getOrderId())
+                    paymentStatusEvent
                 );
             }
 

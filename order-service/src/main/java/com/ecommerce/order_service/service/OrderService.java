@@ -72,7 +72,10 @@ public class OrderService {
                 savedOrder.getId(),
                 savedOrder.getCustomerId(),
                 savedOrder.getTotalAmount(),
-                "CREDIT_CARD"
+            "CREDIT_CARD",
+            savedOrder.getItems().stream()
+                .map(item -> new PaymentEvent.OrderItemPayload(item.getProductId(), item.getQuantity()))
+                .toList()
         );
         messagePublisher.publishPaymentEvent(paymentEvent);
 

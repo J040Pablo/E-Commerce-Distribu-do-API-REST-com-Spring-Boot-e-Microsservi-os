@@ -1,45 +1,34 @@
 package com.ecommerce.product_service.service;
 
-import com.ecommerce.product_service.dto.OrderResponse;
+import com.ecommerce.product_service.dto.PaymentApprovedEvent;
 import com.ecommerce.product_service.repository.ProductRepository;
 import java.util.List;
-import java.util.Map;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class PaymentApprovedListener {
 
-    private final RestTemplate restTemplate;
     private final ProductRepository productRepository;
 
-    public PaymentApprovedListener(RestTemplate restTemplate, ProductRepository productRepository) {
-        this.restTemplate = restTemplate;
+    public PaymentApprovedListener(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
     @RabbitListener(queues = "product.stock.queue")
     @Transactional
-    public void handlePaymentApproved(Map<String, Object> payload) {
-        Long orderId = extractOrderId(payload);
-        if (orderId == null) {
+    public void handlePaymentApproved(PaymentApprovedEvent event) {
+        if (event == null || event.getItems() == null || event.getItems().isEmpty()) {
             return;
         }
 
-        OrderResponse order = restTemplate.getForObject(
-                "http://order-service/api/orders/{id}",
-                OrderResponse.class,
-                orderId
-        );
-
-        if (order == null || order.getItems() == null) {
+        if (!"APPROVED".equalsIgnoreCase(event.getStatus())) {
             return;
         }
 
-        List<OrderResponse.OrderItemResponse> items = order.getItems();
-        for (OrderResponse.OrderItemResponse item : items) {
+        List<PaymentApprovedEvent.OrderItemPayload> items = event.getItems();
+        for (PaymentApprovedEvent.OrderItemPayload item : items) {
             if (item.getProductId() == null || item.getQuantity() == null) {
                 continue;
             }
@@ -51,23 +40,5 @@ public class PaymentApprovedListener {
                 productRepository.save(product);
             });
         }
-    }
-
-    private Long extractOrderId(Map<String, Object> payload) {
-        if (payload == null) {
-            return null;
-        }
-        Object raw = payload.get("orderId");
-        if (raw instanceof Number) {
-            return ((Number) raw).longValue();
-        }
-        if (raw instanceof String) {
-            try {
-                return Long.parseLong((String) raw);
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
-        return null;
     }
 }

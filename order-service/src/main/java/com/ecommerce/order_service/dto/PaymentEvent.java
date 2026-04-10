@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,4 +15,13 @@ public class PaymentEvent {
     private Long customerId;
     private BigDecimal amount;
     private String paymentMethod;
+    private List<OrderItemPayload> items;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderItemPayload {
+        private Long productId;
+        private Integer quantity;
+    }
 }

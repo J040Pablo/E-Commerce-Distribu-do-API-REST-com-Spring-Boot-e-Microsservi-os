@@ -3,6 +3,7 @@ package com.ecommerce.product_service.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +13,15 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret:ecommerce_secret_key_very_long_for_hs512_algorithm_please_change_in_production}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @PostConstruct
+    public void validateSecret() {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException("JWT secret not configured");
+        }
+    }
 
     public boolean validateToken(String token) {
         try {

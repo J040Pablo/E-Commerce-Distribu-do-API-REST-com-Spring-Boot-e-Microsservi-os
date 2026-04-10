@@ -15,6 +15,8 @@ public class RabbitMQConfig {
     private static final String ORDER_EXCHANGE = "order.exchange";
     private static final String PAYMENT_QUEUE = "payment.queue";
     private static final String PAYMENT_ROUTING_KEY = "payment.routing.key";
+    private static final String PAYMENT_STATUS_QUEUE = "order.payment-status.queue";
+    private static final String PAYMENT_STATUS_ROUTING_KEY = "payment.status";
 
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -37,5 +39,18 @@ public class RabbitMQConfig {
                 .bind(paymentQueue())
                 .to(orderExchange())
                 .with(PAYMENT_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue paymentStatusQueue() {
+        return new Queue(PAYMENT_STATUS_QUEUE, true);
+    }
+
+    @Bean
+    public Binding paymentStatusBinding() {
+        return BindingBuilder
+                .bind(paymentStatusQueue())
+                .to(orderExchange())
+                .with(PAYMENT_STATUS_ROUTING_KEY);
     }
 }
