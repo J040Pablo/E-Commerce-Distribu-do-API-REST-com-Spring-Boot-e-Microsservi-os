@@ -12,6 +12,11 @@ spring:
     # Nome do serviço registrado no Eureka
     name: api-gateway
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   cloud:
     gateway:
       # Rotas explícitas para serviços descobertos no Eureka
@@ -23,6 +28,12 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@gatewayRateLimitKeyResolver}"
+                "[redis-rate-limiter.replenishRate]": ${RATE_LIMIT_AUTH_REPLENISH_RATE:20}
+                "[redis-rate-limiter.burstCapacity]": ${RATE_LIMIT_AUTH_BURST_CAPACITY:40}
+                "[redis-rate-limiter.requestedTokens]": 1
         
         # Rota para Product Service
         - id: product-service
@@ -31,6 +42,12 @@ spring:
             - Path=/api/products/**
           filters:
             - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@gatewayRateLimitKeyResolver}"
+                "[redis-rate-limiter.replenishRate]": ${RATE_LIMIT_USER_REPLENISH_RATE:100}
+                "[redis-rate-limiter.burstCapacity]": ${RATE_LIMIT_USER_BURST_CAPACITY:100}
+                "[redis-rate-limiter.requestedTokens]": ${RATE_LIMIT_USER_REQUESTED_TOKENS:1}
 
         # Rota para Customer Service
         - id: customer-service
@@ -39,6 +56,12 @@ spring:
             - Path=/api/customers/**
           filters:
             - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@gatewayRateLimitKeyResolver}"
+                "[redis-rate-limiter.replenishRate]": ${RATE_LIMIT_USER_REPLENISH_RATE:100}
+                "[redis-rate-limiter.burstCapacity]": ${RATE_LIMIT_USER_BURST_CAPACITY:100}
+                "[redis-rate-limiter.requestedTokens]": ${RATE_LIMIT_USER_REQUESTED_TOKENS:1}
 
         # Rota para Order Service
         - id: order-service
@@ -47,6 +70,12 @@ spring:
             - Path=/api/orders/**
           filters:
             - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@gatewayRateLimitKeyResolver}"
+                "[redis-rate-limiter.replenishRate]": ${RATE_LIMIT_USER_REPLENISH_RATE:100}
+                "[redis-rate-limiter.burstCapacity]": ${RATE_LIMIT_USER_BURST_CAPACITY:100}
+                "[redis-rate-limiter.requestedTokens]": ${RATE_LIMIT_USER_REQUESTED_TOKENS:1}
 
         # Rota para Payment Service
         - id: payment-service
@@ -55,6 +84,12 @@ spring:
             - Path=/api/payments/**
           filters:
             - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@gatewayRateLimitKeyResolver}"
+                "[redis-rate-limiter.replenishRate]": ${RATE_LIMIT_USER_REPLENISH_RATE:100}
+                "[redis-rate-limiter.burstCapacity]": ${RATE_LIMIT_USER_BURST_CAPACITY:100}
+                "[redis-rate-limiter.requestedTokens]": ${RATE_LIMIT_USER_REQUESTED_TOKENS:1}
     
     loadbalancer:
       # Ribbon LoadBalancer (usado com Eureka)
@@ -103,7 +138,8 @@ eureka:
 # ========================================
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.cloud.loadbalancer: DEBUG
-    com.netflix.discovery: INFO
-    org.springframework.web: DEBUG
+    "[org.springframework.cloud.gateway]": DEBUG
+    "[org.springframework.cloud.gateway.filter.ratelimit]": INFO
+    "[org.springframework.cloud.loadbalancer]": DEBUG
+    "[com.netflix.discovery]": INFO
+    "[org.springframework.web]": DEBUG

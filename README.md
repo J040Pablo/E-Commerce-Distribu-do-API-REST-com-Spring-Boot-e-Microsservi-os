@@ -38,6 +38,15 @@ This asynchronous workflow reduces coupling between services and allows each com
 Authentication and authorization are handled by the auth-service using Spring Security and JWT.
 The API Gateway validates incoming requests and ensures that only authenticated users can access protected endpoints across the system.
 
+### API Rate Limiting (Production-ready)
+The API Gateway enforces distributed rate limiting backed by Redis:
+
+- **Auth endpoints (`/api/auth/**`)**: limit by **client IP** (anti-brute-force)
+- **Business endpoints (`/api/products/**`, `/api/customers/**`, `/api/orders/**`, `/api/payments/**`)**: limit by **authenticated user** (JWT subject)
+- Uses token-bucket algorithm through Spring Cloud Gateway `RequestRateLimiter` + Redis
+- Works across multiple gateway instances (shared counters in Redis)
+- User policy is intentionally simple: **1 request = 1 token** and the bucket refills at **100 tokens per minute**
+
 ## Technologies
 - Java 17
 - Spring Boot
@@ -48,6 +57,7 @@ The API Gateway validates incoming requests and ensures that only authenticated 
 - Spring Data JPA
 - MySQL
 - RabbitMQ
+- Redis
 - Docker
 - Docker Compose
 - Maven
@@ -69,6 +79,38 @@ Start all services and infrastructure components using Docker Compose:
 ```
 docker-compose up -d --build
 ```
+
+After startup, the rate limit defaults are:
+
+- Auth: `20 req/s` with burst `40` per IP
+- Business APIs: `100 req/min` per user (`replenishRate=100`, `requestedTokens=1`, `burst=100`)
+
+Customize in `.env`:
+
+- `RATE_LIMIT_AUTH_REPLENISH_RATE`
+- `RATE_LIMIT_AUTH_BURST_CAPACITY`
+- `RATE_LIMIT_USER_REPLENISH_RATE`
+- `RATE_LIMIT_USER_BURST_CAPACITY`
+- `RATE_LIMIT_USER_REQUESTED_TOKENS`
+
+### Quick test
+
+Use the same bearer token and send 101 requests in under a minute:
+
+```bash
+TOKEN="<access_token>"
+for i in $(seq 1 101); do
+	code=$(curl -s -o /dev/null -w "%{http_code}" \
+		-H "Authorization: Bearer $TOKEN" \
+		http://localhost:8080/api/products)
+	echo "$i -> $code"
+done
+```
+
+Expected result:
+
+- Requests 1-100: `200` or the upstream service response
+- Request 101: `429 Too Many Requests`
 
 To stop the environment:
 

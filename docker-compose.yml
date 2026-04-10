@@ -42,6 +42,24 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis - Distributed Rate Limiting State
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Eureka Discovery Service
   discovery-service:
     build:
@@ -70,8 +88,18 @@ services:
       - "8080:8080"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      RATE_LIMIT_AUTH_REPLENISH_RATE: ${RATE_LIMIT_AUTH_REPLENISH_RATE:-20}
+      RATE_LIMIT_AUTH_BURST_CAPACITY: ${RATE_LIMIT_AUTH_BURST_CAPACITY:-40}
+      RATE_LIMIT_USER_REPLENISH_RATE: ${RATE_LIMIT_USER_REPLENISH_RATE:-100}
+      RATE_LIMIT_USER_BURST_CAPACITY: ${RATE_LIMIT_USER_BURST_CAPACITY:-100}
+      RATE_LIMIT_USER_REQUESTED_TOKENS: ${RATE_LIMIT_USER_REQUESTED_TOKENS:-60}
     depends_on:
       discovery-service:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - ecommerce-network
@@ -245,6 +273,7 @@ services:
 volumes:
   mysql-data:
   rabbitmq-data:
+  redis-data:
   prometheus-data:
   grafana-data:
 
