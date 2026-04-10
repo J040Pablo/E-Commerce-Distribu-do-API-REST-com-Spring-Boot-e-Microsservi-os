@@ -18,7 +18,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: ${DB_DIALECT}
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MySQLDialect}
         "[format_sql]": true
         "[use_sql_comments]": true
     show-sql: false
@@ -39,7 +39,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_DEFAULT_ZONE}
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://discovery-service:8761/eureka}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -49,8 +49,8 @@ eureka:
 
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT}
-    "[com.ecommerce.customer_service]": ${LOG_LEVEL_APP}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.ecommerce.customer_service]": ${LOG_LEVEL_APP:INFO}
 
 management:
   endpoints:
@@ -74,3 +74,29 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    "[com.ecommerce.customer_service]": DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+
+logging:
+  level:
+    root: WARN
+    "[com.ecommerce.customer_service]": INFO

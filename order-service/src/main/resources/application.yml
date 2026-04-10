@@ -6,7 +6,7 @@ spring:
     name: order-service
   datasource:
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/order_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
-    username: ${DB_USER}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
@@ -14,7 +14,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: ${DB_DIALECT}
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MySQLDialect}
     show-sql: false
   flyway:
     enabled: true
@@ -36,7 +36,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_DEFAULT_ZONE}
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://discovery-service:8761/eureka}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -44,8 +44,8 @@ eureka:
 
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT}
-    "[com.ecommerce.order_service]": ${LOG_LEVEL_APP}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.ecommerce.order_service]": ${LOG_LEVEL_APP:INFO}
 
 resilience4j:
   circuitbreaker:
@@ -67,3 +67,29 @@ management:
   endpoint:
     health:
       show-details: always
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    "[com.ecommerce.order_service]": DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+
+logging:
+  level:
+    root: WARN
+    "[com.ecommerce.order_service]": INFO
